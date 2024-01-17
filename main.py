@@ -7,6 +7,12 @@ pygame.init()
 fps = 75
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((800, 800))
+pygame.display.set_caption("Newton's Law of Universal Gravitation Simulator")
+
+color_list = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255,255,0), (0,255,255), (255,0,255), (255,255,255)]
+mass = 5
+color = (255, 255, 255)
+size = 10
 
 class Grid:
     def __init__(self):
@@ -56,8 +62,6 @@ class Grid:
                     # Update vertex coordinates based on the force
                     vertex[0] -= (force * (vertex[0] - planet.x)) / (distance ** 2)
                     vertex[1] -= (force * (vertex[1] - planet.y)) / (distance ** 2)
-
-
 
 class Planet:
     def __init__(self, name, x, y, velocity, radius, mass, color, being_placed):
@@ -120,7 +124,6 @@ class Planet:
             point2 = (line_positions[i + 1].x, line_positions[i + 1].y)
             pygame.draw.line(screen, (255, 255, 255), point1, point2, 1)
 
-
     def update_trajectory(self, planets):
         G = 6.67408 * 10 ** -2
         parts_to_draw = 50
@@ -152,10 +155,41 @@ class Planet:
             point2 = (line_positions[i + 1].x, line_positions[i + 1].y)
             pygame.draw.line(screen, (255, 255, 255), point1, point2, 1)
 
-mass = 5
+    def collision(self, planets):
+        for planet in planets:
+            if planet != self:
+                distance = ((self.x - planet.x) ** 2 + (self.y - planet.y) ** 2) ** 0.5
+                if distance <= self.radius + planet.radius:
+                    planets.remove(planet)
+                    self.radius = self.radius + planet.radius
+                    self.mass = self.mass + planet.mass
+                    self.color = color_list[(color_list.index(self.color) + color_list.index(planet.color)) % len(color_list)]
+                    self.velocity = pygame.math.Vector2((self.velocity.x * self.mass + planet.velocity.x * planet.mass) / self.mass, (self.velocity.y * self.mass + planet.velocity.y * planet.mass) / self.mass)
+                    break
+
+class Button:
+    def __init__(self, name, x, y, color, font_size, button_size, var):
+        self.name = name
+        self.x = x
+        self.y = y
+        self.color = color
+        self.font_size = font_size
+        self.button_size = button_size
+        self.var = var
+        
+    def draw(self, screen):
+        pygame.draw.rect(screen, color, (self.x, self.y, self.button_size, self.button_size / 2))
+        font = pygame.font.SysFont("Arial", self.font_size)
+        text = font.render(f"{self.name}: {self.var}", True, (0, 0, 0))
+        screen.blit(text, (self.x, self.y))
+    
 
 new_grid = Grid()
 planets = []
+
+UI_buttons = [Button("Mass", 5, 5, (255, 255, 255), 8, 40, mass), 
+              Button("Color", 55, 5, color, 8, 40, color), 
+              Button("Size", 105, 5, (255, 255, 255), 8, 40, size)]
 
 running = True
 
@@ -165,7 +199,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            planets.append(Planet("Planet", pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], pygame.math.Vector2(0, 0), 10, mass, (0, 25, 255), True))
+            planets.append(Planet("Planet", pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], pygame.math.Vector2(0, 0), size, mass, color, True))
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             planets[-1].velocity = pygame.math.Vector2((planets[-1].x - pygame.mouse.get_pos()[0]) / 50, (planets[-1].y - pygame.mouse.get_pos()[1]) / 50)
             planets[-1].being_placed = False
@@ -176,11 +210,31 @@ while running:
                     planets.remove(planet)
                     break
         if event.type == pygame.MOUSEWHEEL and event.y == 1:
-            mass += 1
-            print(mass)
+            # based on position of buttons, if mouse is over the button, change the mass, color, or size of the planet
+            cur_mouse_pos = pygame.mouse.get_pos()
+
+            if 5 <= cur_mouse_pos[0] <= 45 and 5 <= cur_mouse_pos[1] <= 25:
+                mass += 1
+                UI_buttons[0].var = mass
+            elif 55 <= cur_mouse_pos[0] <= 95 and 5 <= cur_mouse_pos[1] <= 25:
+                color = color_list[(color_list.index(color) + 1) % len(color_list)]
+                UI_buttons[1].var = color
+            elif 105 <= cur_mouse_pos[0] <= 145 and 5 <= cur_mouse_pos[1] <= 25:
+                size += 1
+                UI_buttons[2].var = size
         if event.type == pygame.MOUSEWHEEL and event.y == -1:
-            mass -= 1
-            print(mass)
+            # based on position of buttons, if mouse is over the button, change the mass, color, or size of the planet
+            cur_mouse_pos = pygame.mouse.get_pos()
+
+            if 5 <= cur_mouse_pos[0] <= 45 and 5 <= cur_mouse_pos[1] <= 25:
+                mass -= 1
+                UI_buttons[0].var = mass
+            elif 55 <= cur_mouse_pos[0] <= 95 and 5 <= cur_mouse_pos[1] <= 25:
+                color = color_list[(color_list.index(color) - 1) % len(color_list)]
+                UI_buttons[1].var = color
+            elif 105 <= cur_mouse_pos[0] <= 145 and 5 <= cur_mouse_pos[1] <= 25:
+                size -= 1
+                UI_buttons[2].var = size
 
     screen.fill((0, 0, 0))
     
@@ -197,8 +251,10 @@ while running:
             planet.update_trajectory(planets)
         planet.gravity(planets)
         planet.move()
+        planet.collision(planets)
         planet.draw(screen)
     
-  
+    for button in UI_buttons:
+        button.draw(screen)
 
     pygame.display.update()
