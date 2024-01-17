@@ -32,8 +32,8 @@ class Planet:
             for planet in planets:
                 if planet != self:
                     distance = ((self.x - planet.x) ** 2 + (self.y - planet.y) ** 2) ** 0.5
-                    self.velocity.x += G * (planet.x - self.x) * planet.mass / self.mass / distance ** 2
-                    self.velocity.y += G * (planet.y - self.y) * planet.mass / self.mass / distance ** 2
+                    self.velocity.x += G * (planet.x - self.x) * planet.mass * self.mass / distance ** 2
+                    self.velocity.y += G * (planet.y - self.y) * planet.mass * self.mass / distance ** 2
 
 mass = 5.0
 
@@ -52,7 +52,9 @@ while running:
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             planets[-1].velocity = pygame.math.Vector2((planets[-1].x - pygame.mouse.get_pos()[0]) / 50, (planets[-1].y - pygame.mouse.get_pos()[1]) / 50)
             planets[-1].being_placed = False
-
+        if event.type == pygame.MOUSEWHEEL and event.y == 1:
+            mass += 0.1
+            print(mass)
 
     screen.fill((0, 0, 0))
 
