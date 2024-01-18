@@ -18,7 +18,7 @@ class Grid:
     def __init__(self):
         self.init_vertices = []
         self.vertices = []
-        self.color = (25, 25, 25)
+        self.color = (100, 100, 100)
         for i in range(0, 801, 40):
             for j in range(0, 801, 40):
                 self.vertices.append([i, j])
@@ -81,7 +81,7 @@ class Planet:
         self.x += self.velocity.x
         self.y += self.velocity.y
 
-    def gravity(self, planets):
+    def gravity(self, planets, min_distance=10):
         if self.being_placed == False:
             G = 6.67408 * 10 ** -2
             for planet in planets:
@@ -183,6 +183,7 @@ class Button:
         text = font.render(f"{self.name}: {self.var}", True, (0, 0, 0))
         screen.blit(text, (self.x, self.y))
     
+    
 
 new_grid = Grid()
 planets = []
@@ -191,6 +192,7 @@ UI_buttons = [Button("Mass", 5, 5, (255, 255, 255), 8, 40, mass),
               Button("Color", 55, 5, color, 8, 40, color), 
               Button("Size", 105, 5, (255, 255, 255), 8, 40, size)]
 
+game_paused = False
 running = True
 
 while running:
@@ -198,7 +200,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:           
             planets.append(Planet("Planet", pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], pygame.math.Vector2(0, 0), size, mass, color, True))
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             planets[-1].velocity = pygame.math.Vector2((planets[-1].x - pygame.mouse.get_pos()[0]) / 50, (planets[-1].y - pygame.mouse.get_pos()[1]) / 50)
@@ -209,6 +211,11 @@ while running:
                 if planet.x - planet.radius <= cur_mouse_pos[0] <= planet.x + planet.radius and planet.y - planet.radius <= cur_mouse_pos[1] <= planet.y + planet.radius:
                     planets.remove(planet)
                     break
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if game_paused == False:
+                game_paused = True
+            else:
+                game_paused = False
         if event.type == pygame.MOUSEWHEEL and event.y == 1:
             # based on position of buttons, if mouse is over the button, change the mass, color, or size of the planet
             cur_mouse_pos = pygame.mouse.get_pos()
@@ -246,13 +253,17 @@ while running:
         if planet.being_placed == True:
             planet.init_trajectory(planets)
 
+
     for planet in planets:
-        if planet.being_placed == False:
+        if planet.being_placed == False and game_paused == False:
             planet.update_trajectory(planets)
-        planet.gravity(planets)
-        planet.move()
-        planet.collision(planets)
+        
+        if game_paused == False:
+            planet.gravity(planets)
+            planet.move()
+            planet.collision(planets)
         planet.draw(screen)
+
     
     for button in UI_buttons:
         button.draw(screen)
