@@ -60,8 +60,8 @@ class Grid:
                         distance = min_distance
 
                     # Update vertex coordinates based on the force
-                    vertex[0] -= (force * (vertex[0] - planet.x)) / (distance ** 2)
-                    vertex[1] -= (force * (vertex[1] - planet.y)) / (distance ** 2)
+                    vertex[0] -= (force * (vertex[0] - planet.x)) / ((distance ** 2.5))
+                    vertex[1] -= (force * (vertex[1] - planet.y)) / ((distance ** 2.5))
 
 class Planet:
     def __init__(self, name, x, y, velocity, radius, mass, color, being_placed):
@@ -87,11 +87,11 @@ class Planet:
             for planet in planets:
                 distance = ((self.x - planet.x) ** 2 + (self.y - planet.y) ** 2) ** 0.5
                 if planet != self and planet.being_placed == False and self.being_placed == False and self.mass >= planet.mass:
-                    self.velocity.x += G * (planet.x - self.x) * self.mass / planet.mass / distance ** 2
-                    self.velocity.y += G * (planet.y - self.y) * self.mass / planet.mass / distance ** 2
+                    self.velocity.x += G * (planet.x - self.x) * self.mass / planet.mass / (distance ** 2.5)
+                    self.velocity.y += G * (planet.y - self.y) * self.mass / planet.mass / (distance ** 2.5)
                 elif planet != self and planet.being_placed == False and self.being_placed == False and self.mass < planet.mass:
-                    self.velocity.x += G * (planet.x - self.x) * self.mass * planet.mass / distance ** 2
-                    self.velocity.y += G * (planet.y - self.y) * self.mass * planet.mass / distance ** 2
+                    self.velocity.x += G * (planet.x - self.x) * self.mass * planet.mass / (distance ** 2.5)
+                    self.velocity.y += G * (planet.y - self.y) * self.mass * planet.mass / (distance ** 2.5)
 
     def init_trajectory(self, planets):
         G = 6.67408 * 10 ** -2
@@ -108,11 +108,11 @@ class Planet:
             for planet in planets:
                 distance = ((temp_x - planet.x) ** 2 + (temp_y - planet.y) ** 2) ** 0.5
                 if planet != self and planet.being_placed == False and self.being_placed == True and self.mass >= planet.mass:
-                    temp_velocity.x += G * (planet.x - temp_x) * (self.mass / planet.mass) / distance ** 2
-                    temp_velocity.y += G * (planet.y - temp_y) * (self.mass / planet.mass) / distance ** 2
+                    temp_velocity.x += G * (planet.x - temp_x) * (self.mass / planet.mass) / (distance ** 2.5)
+                    temp_velocity.y += G * (planet.y - temp_y) * (self.mass / planet.mass) / (distance ** 2.5)
                 elif planet != self and planet.being_placed == False and self.being_placed == True and self.mass < planet.mass:
-                    temp_velocity.x += G * (planet.x - temp_x) * (self.mass * planet.mass) / distance ** 2
-                    temp_velocity.y += G * (planet.y - temp_y) * (self.mass * planet.mass) / distance ** 2
+                    temp_velocity.x += G * (planet.x - temp_x) * (self.mass * planet.mass) / (distance ** 2.5)
+                    temp_velocity.y += G * (planet.y - temp_y) * (self.mass * planet.mass) / (distance ** 2.5)
 
             temp_x += temp_velocity.x
             temp_y += temp_velocity.y
@@ -139,11 +139,11 @@ class Planet:
             for planet in planets:
                 distance = ((temp_x - planet.x) ** 2 + (temp_y - planet.y) ** 2) ** 0.5
                 if planet != self and planet.being_placed == False and self.being_placed == True and self.mass >= planet.mass:
-                    temp_velocity.x += G * (planet.x - temp_x) * self.mass / planet.mass / distance ** 2
-                    temp_velocity.y += G * (planet.y - temp_y) * self.mass / planet.mass / distance ** 2
+                    temp_velocity.x += G * (planet.x - temp_x) * self.mass / planet.mass / (distance ** 2.5)
+                    temp_velocity.y += G * (planet.y - temp_y) * self.mass / planet.mass / (distance ** 2.5)
                 elif planet != self and planet.being_placed == False and self.being_placed == True and self.mass < planet.mass:
-                    temp_velocity.x += G * (planet.x - temp_x) * self.mass * planet.mass / distance ** 2
-                    temp_velocity.y += G * (planet.y - temp_y) * self.mass * planet.mass / distance ** 2
+                    temp_velocity.x += G * (planet.x - temp_x) * self.mass * planet.mass / (distance ** 2.5)
+                    temp_velocity.y += G * (planet.y - temp_y) * self.mass * planet.mass / (distance ** 2.5)
 
             temp_x += temp_velocity.x
             temp_y += temp_velocity.y
